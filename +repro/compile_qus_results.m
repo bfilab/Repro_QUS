@@ -6,9 +6,9 @@ function compile_qus_results(qus_fid,fid_cell_array,id_cell_array,qus_frame)
 % .mat files containing the RF datasets. Ideally, this will be
 % generated programmatically
 %{
-fid_cell_array = {'F:\OneDrive - med.cornell.edu\Documents\Photoacoustic_Placenta\Preeclampsia Model\RTG11\Day 14\RTG_4_808_2020-05-28-10-49-53_RF_Data.mat'; 
-    'F:\OneDrive - med.cornell.edu\Documents\Photoacoustic_Placenta\Preeclampsia Model\RTG11\Day 16\RTG_4_808_2020-05-30-10-19-54_RF_Data.mat'; 
-    'F:\OneDrive - med.cornell.edu\Documents\Photoacoustic_Placenta\Preeclampsia Model\RTG11\Day 18\RTG_5_808_2020-06-01-11-15-02_RF_Data.mat'};
+fid_cell_array = {'F:\OneDrive - med.cornell.edu\Documents\Photoacoustic_repro\Preeclampsia Model\RTG11\Day 14\RTG_4_808_2020-05-28-10-49-53_RF_Data.mat'; 
+    'F:\OneDrive - med.cornell.edu\Documents\Photoacoustic_repro\Preeclampsia Model\RTG11\Day 16\RTG_4_808_2020-05-30-10-19-54_RF_Data.mat'; 
+    'F:\OneDrive - med.cornell.edu\Documents\Photoacoustic_repro\Preeclampsia Model\RTG11\Day 18\RTG_5_808_2020-06-01-11-15-02_RF_Data.mat'};
 %}
 
 % Name of the .mat file containing the QUS results
@@ -40,7 +40,7 @@ full_res_table = table;
 for f_idx=1:length(fid_cell_array)
     for q = 1:length(qus_fid)      
         try 
-            this_res_table = placenta.get_qus_results(fid_cell_array{f_idx},qus_fid(q),qus_frame,id_cell_array{f_idx});
+            this_res_table = repro.get_qus_results(fid_cell_array{f_idx},qus_fid(q),qus_frame,id_cell_array{f_idx});
         catch
             continue;
         end

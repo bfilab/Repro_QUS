@@ -14,7 +14,7 @@ for b_idx=1:length(all_bmode)
     this_file = str_tok{1};
 
     % Convert IQ to RF
-    [rf_data,~,~,fs,params,sysParam] = placenta.read_visualsonics(this_file,[],num_frames);
+    [rf_data,~,~,fs,params,sysParam] = repro.read_visualsonics(this_file,[],num_frames);
     
     del_mm = params.depth_offset; % store separately, just because 
 

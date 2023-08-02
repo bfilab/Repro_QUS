@@ -1,12 +1,12 @@
-function [seg_struct] = segment_placenta_frames(in_fid,seg_frames,seg_in)
-% Manual segmentation of mouse/rat placenta frames
+function [seg_struct] = segment_repro_frames(in_fid,seg_frames,seg_in)
+% Manual segmentation of mouse/rat repro frames
 % Two segmentations are done:
-%   1) contour of the placenta
+%   1) contour of the repro
 %   2) curve following the skin surface (for attenuation compensation)
 %
 %   Inputs:
 %       in_fid: name of file containing RF echo data. Format should follow
-%           the same is placenta.iq2rf, which calls read_visualsonics
+%           the same is repro.iq2rf, which calls read_visualsonics
 %   
 %       seg_frames: vector specifying which frames to segment. If omitted
 %           or empty, segment all frames
@@ -16,7 +16,7 @@ function [seg_struct] = segment_placenta_frames(in_fid,seg_frames,seg_in)
 %           of this structure is the same size as the number of frames in
 %           the data file, though the only segmentation data populated will
 %           be for those frames specified in seg_frames. Has fields
-%               p_roi - segmented boundary of placenta, stored as Polygon
+%               p_roi - segmented boundary of repro, stored as Polygon
 %                   object
 %               surf_roi - segmented boundary of skin surface, stored as
 %                   Polyline object
@@ -34,7 +34,7 @@ end
 % Generate the images axes
 % Use acquisition parameters defined in sysParam to maintain consistency
 fs = fs*1e6; % Convert from [MHz] to [Hz]
-[axial_vec,lateral_vec] = placenta.generate_image_axes(rf_data,sysParam,fs);
+[axial_vec,lateral_vec] = repro.generate_image_axes(rf_data,sysParam,fs);
 
 % Initialize the structure that will contain the segmentation information
 num_frames = size(rf_data,3);
@@ -59,7 +59,7 @@ for f_idx=seg_frames
     colormap gray;
     axis image;
 
-    % Segment the placenta first
+    % Segment the repro first
     p_roi = drawpolygon(gca,'Color','r');
 
     % Segment the skin surface

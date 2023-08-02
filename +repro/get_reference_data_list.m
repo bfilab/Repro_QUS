@@ -28,7 +28,7 @@ for r_idx=1:length(ref_list)
     this_fid = all_files(r_idx).name;
 
     % Parse the filename for the acquisition details
-    [this_trans, this_phan, this_surfpos, this_tx] = placenta.parse_ref_filename(this_fid);
+    [this_trans, this_phan, this_surfpos, this_tx] = repro.parse_ref_filename(this_fid);
 
     ref_list(r_idx,:) = [this_trans, this_phan, this_surfpos, this_tx];
 

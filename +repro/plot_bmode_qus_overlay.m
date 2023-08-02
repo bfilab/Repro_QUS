@@ -1,6 +1,6 @@
-function plot_bmode_qus_overlay(day, qus_results_fid,frame_num)
+function plot_bmode_qus_overlay(qus_results_fid,frame_num)
 % Plot the B-mode image with QUS parameter color overlay. The parameter
-% map covers only the placenta
+% map covers only the repro
 %
 %   Inputs
 %       in_fid: filename (with full path) of data to display
@@ -89,14 +89,14 @@ qus_row_count = 0;
 
 % Load the RF echo data and generate the image axes
 load(in_fid);
-[axial_vec,lateral_vec,c,~] = placenta.generate_image_axes(rf_data,sysParam,fs*1e6);
+[axial_vec,lateral_vec,c,~] = repro.generate_image_axes(rf_data,sysParam,fs*1e6);
 % Keep only the specified frame
 rf_data = rf_data(:,:,frame_num);
 
 this_bmode = 20*log10(abs(hilbert(rf_data)));
 this_bmode = this_bmode - max(this_bmode(:));
 
-% Load placenta segmentation data
+% Load repro segmentation data
 roi_poly = seg_struct(frame_num).p_roi.Position; 
 
 % For compatiblity with the rest of the code, convert the units of the
@@ -154,7 +154,7 @@ all_roi_x = all_roi.pos_x(:);
 
 %ADDED BY ANDREW
 %Pos_z and Pos_x at the midpoint?
-% Making sure all 4 corners of the QUS ROIs are within the placenta ROI
+% Making sure all 4 corners of the QUS ROIs are within the repro ROI
 all_roi_z2 = all_roi_z + all_roi.len_z;
 all_roi_x2 = all_roi_x + all_roi.len_x;
 [xm2,zm2] = meshgrid(all_roi_x2,all_roi_z2);
@@ -179,7 +179,7 @@ esd_map = real(esd_map);
 zeros_map = (esd_map <= 0) | (isnan(esd_map));
 
 
-% For reference, plot the placenta segmentation on top of the B-mode image
+% For reference, plot the repro segmentation on top of the B-mode image
 figure(5); clf;
 set(gcf,'Units','Normalized','Position',[0.2, 0.25, 0.7, 0.5]);
 imagesc(lateral_vec,axial_vec,this_bmode,[-60,0]); 
@@ -188,7 +188,7 @@ xlabel('Lateral (mm)');
 ylabel('Axial (mm)');
 ylim([axial_vec(1),axial_vec(end)])
 hold on;
-placenta.plot_roi(gca,roi_poly*1000);
+repro.plot_roi(gca,roi_poly*1000);
 set(gca,'FontSize',16);
 
 %%ADDED BY ANDREW
@@ -274,7 +274,7 @@ for p_count=1:length(qus_params_to_plot)
     set(gca,'FontSize',14);
     caxis(qus_clims{p_count});
 
-    placenta.plot_roi(new_ax,roi_poly*1000);
+    repro.plot_roi(new_ax,roi_poly*1000);
 
     %%ADDED BY ANDREW
     %Add horizontal lines to indicate limits of inclusion
@@ -333,7 +333,7 @@ end
 qus_row_count = qus_row_count + 1;
 qus_result_cell(qus_row_count,:) = this_qus_cell;
 
-all_res_table.Day = ones(size(all_res_table,1),1)*day;
+% all_res_table.Day = ones(size(all_res_table,1),1)*day;
  end
 % save('.\qus_results_stats_2023-1-13','qus_mean','qus_std','qus_roi_N','qus_roi_zero', ...
 %     'qus_params_to_plot','all_res_table');

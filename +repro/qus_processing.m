@@ -59,7 +59,7 @@ calib_phantom = 18; % 15 or 18 (15 has artifacts, best not to use for now)
 % edit this as needed.
 % toolbox_path = ['C:\Users\tlye\OneDrive - Riverside Research\',...
 %     'Documents\MATLAB\BSC Toolbox'];
-toolbox_path = 'C:\Users\acm4005\Box\WCM_Tulane_Shared_Folder\Placenta_QUS\BSC Toolbox';
+toolbox_path = 'C:\Users\acm4005\Box\WCM_Tulane_Shared_Folder\Repro_QUS\BSC Toolbox';
 %toolbox_path = 'E:\Cameron_Matlab_Files\Riverside\BSC Toolbox';
 % toolbox_path = 'C:\Cameron_Matlab_Files\Riverside\BSC Toolbox';
 
@@ -68,11 +68,11 @@ addpath(genpath(toolbox_path));
 %% 2. Inputs
 
 % Set the folder containing all of the calibration datasets
-%ref_dir = 'F:\OneDrive - med.cornell.edu\Documents\Photoacoustic_Placenta\Calibration_Data';
+%ref_dir = 'F:\OneDrive - med.cornell.edu\Documents\Photoacoustic_repro\Calibration_Data';
 ref_dir = 'C:\Users\acm4005\Box\WCM_Tulane_Shared_Folder\Phantom Data\Calibration_Data'
 
 % Get a list of the reference datasets
-[ref_data_list, ref_data_header] = placenta.get_reference_data_list(ref_dir);
+[ref_data_list, ref_data_header] = repro.get_reference_data_list(ref_dir);
 
 % Load the RF data to be processed
 samp_data = load(in_fid);
@@ -94,7 +94,7 @@ qus_frames(qus_frames > num_rf_frames) = num_rf_frames; % Can't index beyond ava
 qus_frames = unique(qus_frames); % no redundant QUS processing of frames
 
 % Generate the image axes vectors for later use
-[axial_vec,lateral_vec] = placenta.generate_image_axes(samp_data.rf_data,samp_data.sysParam,samp_data.fs*1e6);
+[axial_vec,lateral_vec] = repro.generate_image_axes(samp_data.rf_data,samp_data.sysParam,samp_data.fs*1e6);
 
 
 %% 3. ROI Info
@@ -231,7 +231,7 @@ params = {'HK Structure Param',...
 samp_surf_seg = samp_data.seg_struct(qus_frames).surf_roi.Position;
 samp_surf = min(samp_surf_seg(:,2)); % least distance from transducer to sample surface
 force_samp_surf = 9; % Set the sample surface to 9mm to surface calibration data where surface is at 8mm
-ref_fname = placenta.select_ref_data(ref_data_list,samp_data.sysParam,calib_phantom,force_samp_surf);
+ref_fname = repro.select_ref_data(ref_data_list,samp_data.sysParam,calib_phantom,force_samp_surf);
 
 
 % Set the start of the processing region to the sample surface location
@@ -293,7 +293,7 @@ for f_idx=1:length(qus_frames)
     samp.seg_struct = samp.seg_struct(this_qus_frame);
 
     % Convert to struct compatible with this QUS code
-    samp = placenta.convert_to_qus_struct(samp);
+    samp = repro.convert_to_qus_struct(samp);
     
     samp.adaptive_bw = do_adaptive_bw;
     samp.bw_thresh = adaptive_bw_thresh;

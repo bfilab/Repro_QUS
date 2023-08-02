@@ -1,12 +1,12 @@
 function [samp] = convert_to_qus_struct(in_data)
-% Convert the data structure created by placenta.iq2rf (which calls
-% placenta.read_visualsonics) into a structure compatible with the QUS
+% Convert the data structure created by repro.iq2rf (which calls
+% repro.read_visualsonics) into a structure compatible with the QUS
 % processing code
 % 2023/1/12 - The current version of the codes assumes there's a single RF
 %   frame (and its segmentation data) in the data struct
 %
 %   Inputs
-%       in_data: struct return by placenta.iq2rf. Must contain
+%       in_data: struct return by repro.iq2rf. Must contain
 %           .del_mm
 %           .fs
 %           .rf_data
@@ -24,7 +24,7 @@ function [samp] = convert_to_qus_struct(in_data)
 %             (8) Surface position, in meters
 
  % Generate the image axes
-[axial_vec, lateral_vec,c] = placenta.generate_image_axes(in_data.rf_data,in_data.sysParam,in_data.fs*1e6);
+[axial_vec, lateral_vec,c] = repro.generate_image_axes(in_data.rf_data,in_data.sysParam,in_data.fs*1e6);
 
 % Get RF data
 samp.data = in_data.rf_data;

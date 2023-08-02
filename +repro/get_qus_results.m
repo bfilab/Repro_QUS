@@ -1,13 +1,13 @@
 function res_table = get_qus_results(rf_fid,qus_fid,qus_frame,id_str)
 % Create a Table with the ROI-wise QUS results. Only include ROIs that
-% are contained within the placenta segmentation region
+% are contained within the repro segmentation region
 %
 %   Inputs
 %       rf_fid: name of the .mat file containing the RF data. Needed to
 %           load the segmentation information
 %
 %       qus_fid: name of the file (WITHOUT full path) containing the QUS results. Created
-%           in placenta.qus_processing. Assumed to exist in same folder as
+%           in repro.qus_processing. Assumed to exist in same folder as
 %           rf_fid
 %
 %       qus_frame: frame in the dataset that was processed
@@ -66,7 +66,7 @@ load(qus_fid);
 % Load the segmentation data
 load(rf_fid,'seg_struct');
 
-% Load placenta segmentation data
+% Load repro segmentation data
 roi_poly = seg_struct(qus_frame).p_roi.Position; 
 
 % For compatiblity with the rest of the code, convert the units of the
@@ -76,7 +76,7 @@ roi_poly = roi_poly./1000;
 
 %%
 % Find all the QUS processing ROIs whose (z,x) midpoint falls within
-% the placenta segmentation boundary
+% the repro segmentation boundary
 num_z = length(all_roi.pos_z);
 num_x = length(all_roi.pos_x);
 
@@ -95,7 +95,7 @@ in_roi_idx = inpolygon(xm(:),zm(:),roi_poly(:,1),roi_poly(:,2));
 
 %ADDED BY ANDREW
 %Pos_z and Pos_x at the midpoint?
-% Making sure all 4 corners of the QUS ROIs are within the placenta ROI
+% Making sure all 4 corners of the QUS ROIs are within the repro ROI
 all_roi_z2 = all_roi_z + all_roi.len_z;
 all_roi_x2 = all_roi_x + all_roi.len_x;
 [xm2,zm2] = meshgrid(all_roi_x2,all_roi_z2);
@@ -131,7 +131,7 @@ for p_count=1:length(qus_params)
     this_p_map = real(this_p_map);
     
     this_p_map(zeros_map) = 0; % ignore cases where ESD was imaginary
-    this_p_map = this_p_map(in_roi_idx); % keep only ROIs in placenta
+    this_p_map = this_p_map(in_roi_idx); % keep only ROIs in repro
     
     % The following block did some manipulations to certain QUS parameters.
     % This is all done in other post-processing scripts.
