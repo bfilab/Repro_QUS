@@ -1,0 +1,179 @@
+function res_table = get_qus_results(rf_fid,qus_fid,qus_frame,id_str)
+% Create a Table with the ROI-wise QUS results. Only include ROIs that
+% are contained within the placenta segmentation region
+%
+%   Inputs
+%       rf_fid: name of the .mat file containing the RF data. Needed to
+%           load the segmentation information
+%
+%       qus_fid: name of the file (WITHOUT full path) containing the QUS results. Created
+%           in placenta.qus_processing. Assumed to exist in same folder as
+%           rf_fid
+%
+%       qus_frame: frame in the dataset that was processed
+%
+%       id_str: string to identify the dataset. Something like animal
+%           number and gestation day. Whatever format is chosen, keep
+%           consistent!
+%
+%
+%% 
+%%
+
+% Function argument checking
+arguments
+    rf_fid string
+    qus_fid string
+    qus_frame (1,1) 
+    id_str string
+end
+
+clc; close all;
+
+% Name of all the QUS parameters to include in the results file
+qus_params = {'HK Structure Param',...
+    'HK Scatterer Clustering Param',...
+    'Nak Shape Param',...
+    'Nak Scale Factor',...
+    'Spectral Slope',...
+    'Intercept',...
+    'Midband Fit', ...
+    'Effective Scatterer Size', ...
+    'Acoustic Concentration', ...
+    'Burr_b', ...
+    'Burr_lambda', ...
+    'ROI Z Dist', ...
+    'XCoord',...
+    'YCoord',...
+    'ZCoord'};
+
+% Abbreviated names of the QUS parameters
+qus_str = {'HK-alpha','HK-k','Naka-m','Naka-Omega','SS','I0','MBF','ESD','EAC','Burr-b','Burr-lambda','ZDist','ROIX','ROIY','ROIZ'};
+
+qus_mean = zeros(length(qus_params),1);
+qus_std = zeros(length(qus_params),1);
+qus_roi_N = zeros(length(qus_params),1);
+qus_roi_zero = zeros(length(qus_params),1); % keep track of the number of omitted QUS ROIs
+
+qus_row_count = 0;
+
+[data_folder,~,~] = fileparts(rf_fid); % folder containing the QUS results
+
+% Load the QUS results
+qus_fid = fullfile(data_folder,qus_fid); % Add the path to the QUS results file
+load(qus_fid);
+
+% Load the segmentation data
+load(rf_fid,'seg_struct');
+
+% Load placenta segmentation data
+roi_poly = seg_struct(qus_frame).p_roi.Position; 
+
+% For compatiblity with the rest of the code, convert the units of the
+% segmentation points from [mm] to [m]
+roi_poly = roi_poly./1000;
+
+
+%%
+% Find all the QUS processing ROIs whose (z,x) midpoint falls within
+% the placenta segmentation boundary
+num_z = length(all_roi.pos_z);
+num_x = length(all_roi.pos_x);
+
+% List of the indices of the ROIs whose midpoints are within the node
+% ROI
+keep_z_inds = [];
+keep_x_inds = [];
+keep_count = 0;
+
+all_roi_z = all_roi.pos_z(:);
+all_roi_x = all_roi.pos_x(:);
+[xm,zm] = meshgrid(all_roi_x,all_roi_z);
+
+in_roi_idx = inpolygon(xm(:),zm(:),roi_poly(:,1),roi_poly(:,2));
+%in_roi_idx = find(in_roi_idx);
+
+%ADDED BY ANDREW
+%Pos_z and Pos_x at the midpoint?
+% Making sure all 4 corners of the QUS ROIs are within the placenta ROI
+all_roi_z2 = all_roi_z + all_roi.len_z;
+all_roi_x2 = all_roi_x + all_roi.len_x;
+[xm2,zm2] = meshgrid(all_roi_x2,all_roi_z2);
+[xm3,zm3] = meshgrid(all_roi_x,all_roi_z2);
+[xm4,zm4] = meshgrid(all_roi_x2,all_roi_z);
+in_roi_idx12 = inpolygon(xm2(:),zm2(:),roi_poly(:,1),roi_poly(:,2));
+in_roi_idx21 = inpolygon(xm3(:),zm3(:),roi_poly(:,1),roi_poly(:,2));
+in_roi_idx22 = inpolygon(xm4(:),zm4(:),roi_poly(:,1),roi_poly(:,2));
+
+in_roi_idx = in_roi_idx & in_roi_idx12 & in_roi_idx21 & in_roi_idx22;
+
+in_roi_idx = find(in_roi_idx);
+
+% Check for any ROI that has the ESD as an imaginary number. For these,
+% all QUS parameters should be ignored (or set to zero, which
+% effectively ignores it below)
+esd_map = result{param2idx(params,'Effective Scatterer Size')};
+esd_map = real(esd_map);
+zeros_map = (esd_map <= 0) | (isnan(esd_map));
+
+% For each specified QUS parameter, compute the mean and std. And keep
+% track of the number of ROIs used in the calculation
+this_qus_cell = cell(1,length(qus_params));
+
+res_table = table;
+
+for p_count=1:length(qus_params)
+
+    % From the results cell array, copy the results for the QUS parameter
+    % in question
+    this_p_idx = param2idx(params,qus_params{p_count});
+    this_p_map = result{param2idx(params,qus_params{p_count})}; % extract the QUS parameter map
+    this_p_map = real(this_p_map);
+    
+    this_p_map(zeros_map) = 0; % ignore cases where ESD was imaginary
+    this_p_map = this_p_map(in_roi_idx); % keep only ROIs in placenta
+    
+    % The following block did some manipulations to certain QUS parameters.
+    % This is all done in other post-processing scripts.
+%     if strcmp(qus_params{p_count},'Effective Scatterer Size')
+%         this_p_map = this_p_map * 1e6;
+%     elseif strcmp(qus_params{p_count},'Nak Scale Factor')
+%         this_p_map = log10(this_p_map);
+%     end
+    
+
+    % Add the results for each ROI to the results table
+    res_table.(qus_params{p_count}) = this_p_map(:);
+    
+    % Any pixel with value 0 or NaN should be removed
+    this_p_map = this_p_map(:);
+    this_nan = isnan(this_p_map);
+    
+    this_remove_N = 0;
+    this_remove_N = this_remove_N + sum(this_nan);
+    this_p_map(this_nan) = [];
+    
+    this_zero = find(this_p_map == 0);
+    this_remove_N = this_remove_N + length(this_zero);
+    this_p_map(this_zero) = [];
+
+    % Remove any Inf values (particular issue for log10(naka omega)
+    this_p_map = this_p_map(~isinf(this_p_map));
+    
+    qus_mean(this_p_idx) = mean(this_p_map,'omitnan');
+    qus_std(this_p_idx) = std(this_p_map);
+    qus_roi_N(this_p_idx) = numel(this_p_map);
+    qus_roi_zero(this_p_idx) = this_remove_N;
+    
+    this_qus_cell{p_count} = qus_mean(this_p_idx);
+% 
+%     copy_fid = sprintf('%s\\%d_%d_%s',copy_dir,this_mrn,this_dataset,qus_str{p_count});
+%     copyfile([save_str,'.png'],[copy_fid,'.png']);
+%     copyfile([save_str,'.fig'],[copy_fid,'.fig']);
+    
+end
+
+
+res_table.ID(:,1) = id_str;
+
+
