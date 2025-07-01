@@ -5,6 +5,7 @@ function [save_fid] = iq2rf(id,num_frames)
 % Get a list of all files in the current folder
 all_bmode = dir('*.bmode');
 
+ % all_bmode = dir('*.3d.bmode');
 for b_idx=1:length(all_bmode)
     this_file = all_bmode(b_idx).name;
     
@@ -13,6 +14,7 @@ for b_idx=1:length(all_bmode)
     str_tok = strsplit(this_file,'.');
     this_file = str_tok{1};
 
+   
     % Convert IQ to RF
     [rf_data,~,~,fs,params,sysParam] = repro.read_visualsonics(this_file,[],num_frames);
     

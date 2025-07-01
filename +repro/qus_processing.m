@@ -46,7 +46,7 @@ do_adaptive_bw = false; % should the processing bandwidth be adaptive?
 adaptive_bw_thresh = 6; % -dB threshold for selecting adaptive bandwidth
 
 % Specify which calibration phantom to use
-calib_phantom = 18; % 15 or 18 (15 has artifacts, best not to use for now)
+calib_phantom = 15; % 15 or 18 (15 has artifacts, best not to use for now)
 
 % Default file name for QUS results contains the processing date
 %date_str = datestr(datetime,'yyyy-mm-dd');
@@ -59,7 +59,7 @@ calib_phantom = 18; % 15 or 18 (15 has artifacts, best not to use for now)
 % edit this as needed.
 % toolbox_path = ['C:\Users\tlye\OneDrive - Riverside Research\',...
 %     'Documents\MATLAB\BSC Toolbox'];
-toolbox_path = 'C:\Users\acm4005\Box\WCM_Tulane_Shared_Folder\Repro_QUS\BSC Toolbox';
+toolbox_path = 'C:\Users\lshi6\Box\QUS\QUS_prolapse\Repro_QUS\BSC Toolbox';
 %toolbox_path = 'E:\Cameron_Matlab_Files\Riverside\BSC Toolbox';
 % toolbox_path = 'C:\Cameron_Matlab_Files\Riverside\BSC Toolbox';
 
@@ -69,7 +69,7 @@ addpath(genpath(toolbox_path));
 
 % Set the folder containing all of the calibration datasets
 %ref_dir = 'F:\OneDrive - med.cornell.edu\Documents\Photoacoustic_repro\Calibration_Data';
-ref_dir = 'C:\Users\acm4005\Box\WCM_Tulane_Shared_Folder\Phantom Data\Calibration_Data'
+ref_dir = 'C:\Users\lshi6\Box\QUS\QUS_prolapse\Calibration_Data';
 
 % Get a list of the reference datasets
 [ref_data_list, ref_data_header] = repro.get_reference_data_list(ref_dir);
@@ -160,8 +160,8 @@ roi.end_x = lateral_vec(end)/1000;
 % Padding value for FFT
 N_fft = 2048;
 % Bandwidth parameters (Hz)
-min_bw = 9e6;
-max_bw = 19e6;
+min_bw = 10e6;
+max_bw = 35e6;
 %max_bw = 29e6;
 
 %% 5. Reference and Compensation Parameters
@@ -230,8 +230,9 @@ params = {'HK Structure Param',...
 % dataset
 samp_surf_seg = samp_data.seg_struct(qus_frames).surf_roi.Position;
 samp_surf = min(samp_surf_seg(:,2)); % least distance from transducer to sample surface
-force_samp_surf = 9; % Set the sample surface to 9mm to surface calibration data where surface is at 8mm
-ref_fname = repro.select_ref_data(ref_data_list,samp_data.sysParam,calib_phantom,force_samp_surf);
+force_samp_surf = 4; % Set the sample surface to 4mm to surface calibration data where surface is at 4mm
+samp_surf = force_samp_surf;
+ref_fname = repro.select_ref_data(ref_data_list,samp_data.sysParam,calib_phantom,samp_surf);
 
 
 % Set the start of the processing region to the sample surface location

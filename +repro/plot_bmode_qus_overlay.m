@@ -21,9 +21,9 @@ clc; close all;
 AddLines = false; 
 
 top_dir = cd;
-%date_str = char(datetime(datetime,'Format','yyyy-MM-dd'));
+date_str = char(datetime(datetime,'Format','yyyy-MM-dd'));
 %date_str = datestr(datetime,'yyyy-mm-dd');
-date_str = '2023-07-21'
+%date_str = '2023-07-21'
 
 if AddLines
     copy_dir = [cd,'\Line_Bmode_with_QUS_Overlay'];
@@ -58,9 +58,7 @@ qus_params = {'HK Structure Param',...
     'Intercept',...
     'Midband Fit', ...
     'Effective Scatterer Size', ...
-    'Acoustic Concentration',...
-    'Burr_b',...
-    'Burr_lambda'};
+    'Acoustic Concentration'};
 
 % qus_params_to_plot = {'Effective Scatterer Size','Intercept','HK Scatterer Clustering Param'};
 qus_params_to_plot = qus_params;
@@ -68,9 +66,9 @@ qus_params_to_plot = qus_params;
 % qus_clims = {[45,70],[90, 107],[10,40],[0 3]};
 % qus_str = {'ESD','Int','HK-alpha'};
 % qus_str = {'ESD','EAC','Int','HK-alpha'};
-qus_str = {'HK-alpha','log10(HK-k)','Naka-m','log10(Naka-Omega)','SS','I0','MBF','ESD','EAC','Burr-b','Burr-lambda'};
+qus_str = {'HK-alpha','log10(HK-k)','Naka-m','log10(Naka-Omega)','SS','I0','MBF','ESD','EAC'};
 %qus_clims = {[0, 1],[0, 5],[0, 1.2],[5, 8],[0, 1.5],[0, 20],[12, 30],[12, 30],[115, 140]};
-qus_clims = {[0, 0.5],[0, 2],[0.6, 1.1],[5, 7],[0, 1],[0, 25],[10, 30],[12, 30],[100, 140],[0, 50],[0 5000]};
+qus_clims = {[0, 0.5],[0, 2],[0.6, 1.1],[5, 7],[0, 1],[0, 25],[10, 30],[12, 30],[100, 140]};
 
 % Red/Green colormap
 qus_cmap = {[1 0 0; 0 1 0], [1 0 0; 0 1 0]};
@@ -106,15 +104,17 @@ roi_poly = roi_poly./1000;
 
 %%ADDED BY ANDREW
 %Iterate through different QUS fids until the right one is found.
-for q = 1:length(qus_results_fid)      
-    try 
-        load(qus_results_fid(q));    
-    catch
-        continue;
-    end
-    disp(qus_results_fid(q));
-    break;
-end
+% for q = 1:length(qus_results_fid)      
+%     try 
+%         load(qus_results_fid(q));    
+%     catch
+%         continue;
+%     end
+%     disp(qus_results_fid(q));
+%     break;
+% end
+
+load(qus_results_fid); 
 
 % Load the QUS results
 %load(qus_results_fid);
@@ -164,7 +164,7 @@ in_roi_idx12 = inpolygon(xm2(:),zm2(:),roi_poly(:,1),roi_poly(:,2));
 in_roi_idx21 = inpolygon(xm3(:),zm3(:),roi_poly(:,1),roi_poly(:,2));
 in_roi_idx22 = inpolygon(xm4(:),zm4(:),roi_poly(:,1),roi_poly(:,2));
 
-in_roi_idx = in_roi_idx & in_roi_idx12 & in_roi_idx21 & in_roi_idx22;
+in_roi_idx = in_roi_idx | in_roi_idx12 | in_roi_idx21 | in_roi_idx22;
 
 in_roi_idx = find(in_roi_idx);
 % in_roi_idx12 = find(in_roi_idx12);
@@ -242,7 +242,7 @@ for p_count=1:length(qus_params_to_plot)
     
     this_alpha_map = zeros(size(this_p_map));
     %this_alpha_map(in_roi_idx) = 0.4;
-    this_alpha_map(in_roi_idx) = 1;
+    this_alpha_map(in_roi_idx) = 0.5;
     
     this_alpha_map(this_p_map == 0) = 0;
     this_alpha_map(isnan(this_p_map)) = 0;

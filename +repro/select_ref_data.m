@@ -21,7 +21,8 @@ function [ref_fid] = select_ref_data(ref_list, sysParam, calib_phantom, surf_dis
 % Get the name of the transducer and location of transmit focus from the
 % acquisition parameters struct
 trans = sysParam.Transducer_Name.value;
-tx_pos = str2double(sysParam.B_Mode_Focal_Zones_Pos1.value);
+tx_pos = str2double(sysParam.B_Mode_Focal_Zones_Pos_Array1.value);
+
 
 % Strip the 'LZ-' from the transducer name and convert to a double
 trans = str2double(trans(4:end));

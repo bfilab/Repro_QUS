@@ -38,16 +38,17 @@ csv_save_fid = [date_str,'.csv'];
 full_res_table = table;
 
 for f_idx=1:length(fid_cell_array)
-    for q = 1:length(qus_fid)      
-        try 
-            this_res_table = repro.get_qus_results(fid_cell_array{f_idx},qus_fid(q),qus_frame,id_cell_array{f_idx});
-        catch
-            continue;
-        end
-
-        disp(fid_cell_array{f_idx});
-        break;
-    end
+    % for q = 1:length(qus_fid)      
+    %     try 
+    %         this_res_table = repro.get_qus_results(fid_cell_array{f_idx},qus_fid(q),qus_frame,id_cell_array{f_idx});
+    %     catch
+    %         continue;
+    %     end
+    % 
+    %     disp(fid_cell_array{f_idx});
+    %     break;
+    % end
+    this_res_table = repro.get_qus_results(fid_cell_array{f_idx},qus_fid,qus_frame,id_cell_array{f_idx});
     full_res_table = [full_res_table; this_res_table];
 end
 

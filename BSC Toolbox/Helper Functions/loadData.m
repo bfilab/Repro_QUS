@@ -389,7 +389,7 @@ switch type
     case 'Tulane_Vevo2100'
 
         % Generate the image axes
-        [axial_vec, lateral_vec,c,elev_vec] = placenta.generate_image_axes(samp_l.rf_data,samp_l.sysParam,samp_l.fs*1e6);
+        [axial_vec, lateral_vec,c,elev_vec] = repro.generate_image_axes(samp_l.rf_data,samp_l.sysParam,samp_l.fs*1e6);
 
         % Get RF data
         samp.data = samp_l.rf_data;
