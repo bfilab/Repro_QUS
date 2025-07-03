@@ -16,7 +16,7 @@ for b_idx=1:length(all_bmode)
 
    
     % Convert IQ to RF
-    [rf_data,~,~,fs,params,sysParam] = repro.read_visualsonics(this_file);
+    [rf_data,~,~,fs,params,sysParam] = repro.read_visualsonics(this_file,[]);
     
     del_mm = params.depth_offset; % store separately, just because 
 

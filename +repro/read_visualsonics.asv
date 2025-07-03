@@ -12,7 +12,7 @@ function [RF_data axial lateral fs parameters, sysParam] = read_visualsonics(fil
 
 
 sysParam = readVSxml([filename '.iq.xml']);
-num_frames = str2num(sysParam.t3D_Scan_Distance.value)/str2num(sysParam.t3D_Step_Size.value);
+num_frames = sysParam.t3D_Scan_Distance.value/sysParam.t3D_Step_Size.value;
 
 c0 = 1e-3*str2num(sysParam.Sound_Speed_Tissue.value);  %c0 is 1540 typically
 
