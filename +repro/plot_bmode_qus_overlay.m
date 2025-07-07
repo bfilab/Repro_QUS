@@ -35,8 +35,8 @@ mkdir(copy_dir);
 % in_fid = 'RTG_4_808_2020-05-28-10-49-53_RF_Data.mat';
 %day = 18
 
-in_fid = dir('*RF.mat');
-%in_fid = dir('LZ550_18umPhantom_6mmSurf_7mmTx_RF_Data*');
+%in_fid = dir('*RF.mat');
+in_fid = dir('LZ550_18umPhantom_6mmSurf_7mmTx_RF_Data*');
 in_fid = in_fid(1).name;
 
 %qus_results_fid = '.\qus_results_2023-03-22.mat';

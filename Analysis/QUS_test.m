@@ -2,17 +2,17 @@
 %6/4/2024
 %Updated 7/3/2025
 ProcessIQ = false;
-Segment = false;
+Segment = true;
 ProcessQUS = false; 
 OverlayQUS = false;
-Compile = true;
+Compile = false;
 
 addpath(genpath('D:\Andrew\Repro_QUS\'));
 data_dir = 'D:\Andrew\Prolapse Model';
 cd(data_dir);
-directories = {dir('M10*')};
-%date_str = char(datetime(datetime,"Format","uuuu-MM-dd"));
-date_str = '2025-07-04';
+directories = {dir('M879*')};
+date_str = char(datetime(datetime,"Format","uuuu-MM-dd"));
+%date_str = '2025-07-04';
 anatomy = readtable('anatomy_qus.csv');
 
 for d = 1:length(directories)
@@ -22,7 +22,7 @@ for d = 1:length(directories)
         fid = samples(i).name;
         cd(fid);
         anatomy_table = anatomy(anatomy.ID == str2num(fid(2:end)),:);
-        anatomy_array = table2array(anatomy_table(1,3:end));
+        anatomy_array = table2array(anatomy_table(1,3:6));
     
         %Convert IQ data file into .mat file with RF data
         if ProcessIQ
