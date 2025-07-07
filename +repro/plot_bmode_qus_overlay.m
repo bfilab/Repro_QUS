@@ -25,11 +25,7 @@ date_str = char(datetime(datetime,'Format','yyyy-MM-dd'));
 %date_str = datestr(datetime,'yyyy-mm-dd');
 %date_str = '2023-07-21'
 
-if AddLines
-    copy_dir = [cd,'\Line_Bmode_with_QUS_Overlay'];
-else
-    copy_dir = [cd,'\',date_str,'_Bmode_with_QUS_Overlay'];
-end
+copy_dir = [cd,'\',qus_results_fid,'_bmode_overlay'];
 mkdir(copy_dir);
 
 
@@ -40,7 +36,7 @@ mkdir(copy_dir);
 %day = 18
 
 in_fid = dir('*RF.mat');
-%in_fid = dir('LZ250_15umPhantom_8mmSurf_13mmTx_RF_Data.mat');
+%in_fid = dir('LZ550_18umPhantom_6mmSurf_7mmTx_RF_Data*');
 in_fid = in_fid(1).name;
 
 %qus_results_fid = '.\qus_results_2023-03-22.mat';
@@ -68,7 +64,7 @@ qus_params_to_plot = qus_params;
 % qus_str = {'ESD','EAC','Int','HK-alpha'};
 qus_str = {'HK-alpha','log10(HK-k)','Naka-m','log10(Naka-Omega)','SS','I0','MBF','ESD','EAC'};
 %qus_clims = {[0, 1],[0, 5],[0, 1.2],[5, 8],[0, 1.5],[0, 20],[12, 30],[12, 30],[115, 140]};
-qus_clims = {[0, 0.5],[0, 2],[0.6, 1.1],[5, 7],[0, 1],[0, 25],[10, 30],[12, 30],[100, 140]};
+qus_clims = {[0, 0.1],[0, 2],[0.6, 1.1],[5, 7],[0, 1],[0, 25],[8, 18],[15, 20],[100, 140]};
 
 % Red/Green colormap
 qus_cmap = {[1 0 0; 0 1 0], [1 0 0; 0 1 0]};
@@ -144,8 +140,8 @@ keep_count = 0;
 % all_roi_x1 = all_roi.pos_x(:);
 % all_roi_x2 = all_roi.pos_x(:) + all_roi.len_x;
 
-all_roi_z = all_roi.pos_z(:);
-all_roi_x = all_roi.pos_x(:);
+all_roi_z = all_roi.pos_z(:)+ all_roi.len_z/2;
+all_roi_x = all_roi.pos_x(:)+ all_roi.len_x/2;
 [xm,zm] = meshgrid(all_roi_x,all_roi_z);
 
 %[xm,zm] = meshgrid(all_roi_x,all_roi_z);
@@ -155,16 +151,16 @@ all_roi_x = all_roi.pos_x(:);
 %ADDED BY ANDREW
 %Pos_z and Pos_x at the midpoint?
 % Making sure all 4 corners of the QUS ROIs are within the repro ROI
-all_roi_z2 = all_roi_z + all_roi.len_z;
-all_roi_x2 = all_roi_x + all_roi.len_x;
-[xm2,zm2] = meshgrid(all_roi_x2,all_roi_z2);
-[xm3,zm3] = meshgrid(all_roi_x,all_roi_z2);
-[xm4,zm4] = meshgrid(all_roi_x2,all_roi_z);
-in_roi_idx12 = inpolygon(xm2(:),zm2(:),roi_poly(:,1),roi_poly(:,2));
-in_roi_idx21 = inpolygon(xm3(:),zm3(:),roi_poly(:,1),roi_poly(:,2));
-in_roi_idx22 = inpolygon(xm4(:),zm4(:),roi_poly(:,1),roi_poly(:,2));
-
-in_roi_idx = in_roi_idx | in_roi_idx12 | in_roi_idx21 | in_roi_idx22;
+% all_roi_z2 = all_roi_z + all_roi.len_z;
+% all_roi_x2 = all_roi_x + all_roi.len_x;
+% [xm2,zm2] = meshgrid(all_roi_x2,all_roi_z2);
+% [xm3,zm3] = meshgrid(all_roi_x,all_roi_z2);
+% [xm4,zm4] = meshgrid(all_roi_x2,all_roi_z);
+% in_roi_idx12 = inpolygon(xm2(:),zm2(:),roi_poly(:,1),roi_poly(:,2));
+% in_roi_idx21 = inpolygon(xm3(:),zm3(:),roi_poly(:,1),roi_poly(:,2));
+% in_roi_idx22 = inpolygon(xm4(:),zm4(:),roi_poly(:,1),roi_poly(:,2));
+% 
+% in_roi_idx = in_roi_idx | in_roi_idx12 | in_roi_idx21 | in_roi_idx22;
 
 in_roi_idx = find(in_roi_idx);
 % in_roi_idx12 = find(in_roi_idx12);
@@ -254,7 +250,7 @@ for p_count=1:length(qus_params_to_plot)
     elseif strcmp(qus_params_to_plot{p_count},'HK Scatterer Clustering Param')
         this_p_map = log10(this_p_map);
     elseif strcmp(qus_params_to_plot{p_count},'Burr_b')
-        %this_p_map = log10(this_p_map);
+        this_p_map = log10(this_p_map);
     end
     
     figure(5+p_count);
@@ -263,7 +259,7 @@ for p_count=1:length(qus_params_to_plot)
     colorbar('Location','southoutside','Visible','off');
     sub_pos = get(gca,'Position');
     new_ax = axes;
-    imagesc(new_ax,(all_roi_x+all_roi.len_x/2)*1000,(all_roi_z+all_roi.len_z/2)*1000,...
+    imagesc(new_ax,(all_roi_x)*1000,(all_roi_z)*1000,...
         this_p_map,'AlphaData',this_alpha_map);
     axis(new_ax,'image');
     rg_cmap = interp1([0;1],[1 0 0; 0 1 0],linspace(0,1,256));

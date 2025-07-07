@@ -36,14 +36,16 @@ end
 fs = fs*1e6; % Convert from [MHz] to [Hz]
 [axial_vec,lateral_vec] = repro.generate_image_axes(rf_data,sysParam,fs);
 
-% Initialize the structure that will contain the segmentation information
-num_frames = size(rf_data,3);
-seg_struct = struct([]);
+if ~exist('seg_struct','var')
+    % Initialize the structure that will contain the segmentation information
+    seg_struct = struct([]);
+end
 
 % Add an entry for the last frame to ensure struct size matches the number
 % of frames
+num_frames = size(rf_data,3);
 seg_struct(num_frames).p_roi = [];
-seg_struct(num_frames).surf_roi = [];
+%seg_struct(num_frames).surf_roi = [];
 
 %% 
 % Segment the specified frames
@@ -62,17 +64,17 @@ for f_idx=seg_frames
     % Segment the repro first
     p_roi = drawpolygon(gca,'Color','r');
 
-    % Segment the skin surface
-    surf_roi = drawpolyline(gca,'Color','y');
-
-    % To make things easier later, interpolate the points from the surface
-    % segmentation over the number of A-lines
-    s_points = surf_roi.Position;
-    s_interp = interp1(s_points(:,1),s_points(:,2),lateral_vec,'linear','extrap');
-    surf_roi.Position = [lateral_vec(:), s_interp(:)];
+    % % Segment the skin surface
+    % surf_roi = drawpolyline(gca,'Color','y');
+    % 
+    % % To make things easier later, interpolate the points from the surface
+    % % segmentation over the number of A-lines
+    % s_points = surf_roi.Position;
+    % s_interp = interp1(s_points(:,1),s_points(:,2),lateral_vec,'linear','extrap');
+    % surf_roi.Position = [lateral_vec(:), s_interp(:)];
 
     seg_struct(f_idx).p_roi = p_roi;
-    seg_struct(f_idx).surf_roi = surf_roi;
+    %seg_struct(f_idx).surf_roi = surf_roi;
 
 end
 

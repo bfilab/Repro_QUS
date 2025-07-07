@@ -57,19 +57,14 @@ calib_phantom = 15; % 15 or 18 (15 has artifacts, best not to use for now)
 
 %% 1. Add path to BSC toolbox
 % edit this as needed.
-% toolbox_path = ['C:\Users\tlye\OneDrive - Riverside Research\',...
-%     'Documents\MATLAB\BSC Toolbox'];
-toolbox_path = 'C:\Users\lshi6\Box\QUS\QUS_prolapse\Repro_QUS\BSC Toolbox';
-%toolbox_path = 'E:\Cameron_Matlab_Files\Riverside\BSC Toolbox';
-% toolbox_path = 'C:\Cameron_Matlab_Files\Riverside\BSC Toolbox';
+toolbox_path = 'D:\Andrew\Repro_QUS\BSC Toolbox';
 
 addpath(genpath(toolbox_path));
 
 %% 2. Inputs
 
 % Set the folder containing all of the calibration datasets
-%ref_dir = 'F:\OneDrive - med.cornell.edu\Documents\Photoacoustic_repro\Calibration_Data';
-ref_dir = 'C:\Users\lshi6\Box\QUS\QUS_prolapse\Calibration_Data';
+ref_dir = 'D:\Andrew\Calibration_Data';
 
 % Get a list of the reference datasets
 [ref_data_list, ref_data_header] = repro.get_reference_data_list(ref_dir);
@@ -108,10 +103,10 @@ clear roi
 % ROI Length (in meters)
 % 1mm is approximately 10 wavelengths and 10 A-lines
 %roi.len_x = 1.75e-3;
-roi.len_x = 1.0e-3;
+roi.len_x = 0.6e-3;
 %roi.len_x = 5.25e-3;
 roi.len_y = 1;
-roi.len_z = 1.0e-3;
+roi.len_z = 0.4e-3;
 %roi.len_z = 1.25e-3;
 
 % Note: roi.len y is actually just the interval between planes
@@ -160,8 +155,8 @@ roi.end_x = lateral_vec(end)/1000;
 % Padding value for FFT
 N_fft = 2048;
 % Bandwidth parameters (Hz)
-min_bw = 10e6;
-max_bw = 35e6;
+min_bw = 7e6;
+max_bw = 50e6;
 %max_bw = 29e6;
 
 %% 5. Reference and Compensation Parameters
@@ -228,10 +223,13 @@ params = {'HK Structure Param',...
 % Using the sample data acquisition parameters and the point of the tissue
 % surface closest to the transducer, select the appropriate reference
 % dataset
-samp_surf_seg = samp_data.seg_struct(qus_frames).surf_roi.Position;
-samp_surf = min(samp_surf_seg(:,2)); % least distance from transducer to sample surface
-force_samp_surf = 4; % Set the sample surface to 4mm to surface calibration data where surface is at 4mm
-samp_surf = force_samp_surf;
+samp_surf_seg = samp_data.seg_struct(qus_frames).p_roi.Position;
+samp_surf = min(samp_surf_seg(:,2)); % average distance from transducer to sample surface
+if samp_surf > 6
+    samp_surf = 6;
+elseif samp_surf < 4
+    samp_surf = 4;
+end
 ref_fname = repro.select_ref_data(ref_data_list,samp_data.sysParam,calib_phantom,samp_surf);
 
 
@@ -354,7 +352,7 @@ for f_idx=1:length(qus_frames)
                 roi.pos_x = all_roi.pos_x(i);
                 roi.pos_y = all_roi.pos_y(j);
                 roi.pos_z = all_roi.pos_z(k);
-                
+
 %                     roi_z_mid = range([roi.init_z,roi.end_z])/2 + roi.init_z;
 
                 % Based on the lateral position of the ROI, adjust the
@@ -362,21 +360,37 @@ for f_idx=1:length(qus_frames)
                 % segmentation curve
                 roi_mid_x = roi.pos_x + roi.len_x/2; % mid-lateral point of ROI
                 roi_mid_x = roi_mid_x*1000; % convert to mm for compatibility with segmentation data
-                surf_seg = samp_data.seg_struct(this_qus_frame).surf_roi.Position;
-
-                this_samp_surf = interp1(surf_seg(:,1),surf_seg(:,2),roi_mid_x);
-                this_samp_surf = this_samp_surf/1000; % back to [m] 
-                samp.surf_pos = this_samp_surf;
+                % surf_seg = samp_data.seg_struct(this_qus_frame).surf_roi.Position;
+                % 
+                % this_samp_surf = interp1(surf_seg(:,1),surf_seg(:,2),roi_mid_x);
+                % this_samp_surf = this_samp_surf/1000; % back to [m] 
+                % samp.surf_pos = this_samp_surf;
+                % samp.surf_pos = samp_surf;
 
                 % Also compute the distance from the sample surface to
                 % z-axis midpoint of the ROI. Will save this as a variable.
                 roi_mid_z = roi.pos_z + roi.len_z/2;
                 roi_z_dist = roi_mid_z - samp.surf_pos;
 
+                % in_poly = inpolygon(roi_mid_x,...
+                % roi_mid_z*1000,...
+                % samp_data.seg_struct(this_qus_frame).p_roi.Position(:,1),...
+                % samp_data.seg_struct(this_qus_frame).p_roi.Position(:,2));
+                % 
+                % if ~in_poly
+                %     if i ~= length(all_roi.pos_x) && k ~= length(all_roi.pos_z)
+                %         result{param2idx(params,'Effective Scatterer Size')}(k,i,j)
+                %        continue;         
+                %     end
+                % end
+
                 result{param2idx(params,'ROI Z Dist')}(k,i,j) = roi_z_dist;
+                
                 
                 % Sample
                 [samp.sub_vol,samp.roi_idx] = getROI(samp,roi);
+               
+                
                 result{param2idx(params,'XCoord')}(k,i,j) = mean(samp.sub_vol.x);
                 result{param2idx(params,'YCoord')}(k,i,j) = mean(samp.sub_vol.y);
                 result{param2idx(params,'ZCoord')}(k,i,j) = mean(samp.sub_vol.z);
@@ -512,49 +526,49 @@ for f_idx=1:length(qus_frames)
 
     %% Plot the parameter maps
 
-    params2plot = {'HK Structure Param',...
-        'HK Scatterer Clustering Param',...
-        'Nak Shape Param',...
-        'Nak Scale Factor',...
-        'Spectral Slope',...
-        'Intercept',...
-        'Midband Fit', ...
-        'Effective Scatterer Size', ...
-        'Acoustic Concentration'};
-
-    title_labels = {['HK Structure Parameter (',char(954),')'],...
-        ['HK Scatterer Clustering Parameter (',char(945),' (log))'],...
-        'Nak Shape Param (m)',... % note: m is not meters; just the symbol m
-        ['Nak Scale Factor (',char(937),' (log(mV^2))'],...
-        'Spectral Slope (dB/sr/m/MHz)',...
-        'Intercept (dB/sr/m)',...
-        'Midband Fit (dB/sr/m)',...
-        'Effective Scatterer Diameter (um)',...
-        'Acoustic Concentration (dB/m^3)',...
-        };
-
-    figure(2);
-    for i = 1:length(params2plot)
-
-        % Get parameter name
-        param_fname = params2plot{i};
-        param_title = title_labels{i};
-
-        % Get coordinates
-        x = result{param2idx(params,'XCoord')};
-        x = x(1,:)*1e3;
-        z = result{param2idx(params,'ZCoord')};
-        z = z(:,1)*1e3;
-
-        subplot(3,3,i)
-        param_map = result{param2idx(params,params2plot{i})};
-        param_map = convertUnits(param_map,param_fname);
-        imagesc(x,z,param_map);
-        title(param_title);
-        colorbar;
-        axis image;
-
-    end
+    % params2plot = {'HK Structure Param',...
+    %     'HK Scatterer Clustering Param',...
+    %     'Nak Shape Param',...
+    %     'Nak Scale Factor',...
+    %     'Spectral Slope',...
+    %     'Intercept',...
+    %     'Midband Fit', ...
+    %     'Effective Scatterer Size', ...
+    %     'Acoustic Concentration'};
+    % 
+    % title_labels = {['HK Structure Parameter (',char(954),')'],...
+    %     ['HK Scatterer Clustering Parameter (',char(945),' (log))'],...
+    %     'Nak Shape Param (m)',... % note: m is not meters; just the symbol m
+    %     ['Nak Scale Factor (',char(937),' (log(mV^2))'],...
+    %     'Spectral Slope (dB/sr/m/MHz)',...
+    %     'Intercept (dB/sr/m)',...
+    %     'Midband Fit (dB/sr/m)',...
+    %     'Effective Scatterer Diameter (um)',...
+    %     'Acoustic Concentration (dB/m^3)',...
+    %     };
+    % 
+    % figure(2);
+    % for i = 1:length(params2plot)
+    % 
+    %     % Get parameter name
+    %     param_fname = params2plot{i};
+    %     param_title = title_labels{i};
+    % 
+    %     % Get coordinates
+    %     x = result{param2idx(params,'XCoord')};
+    %     x = x(1,:)*1e3;
+    %     z = result{param2idx(params,'ZCoord')};
+    %     z = z(:,1)*1e3;
+    % 
+    %     subplot(3,3,i)
+    %     param_map = result{param2idx(params,params2plot{i})};
+    %     param_map = convertUnits(param_map,param_fname);
+    %     imagesc(x,z,param_map);
+    %     title(param_title);
+    %     colorbar;
+    %     axis image;
+    % 
+    % end
     
     %save_results_str = sprintf('%s\\%s',save_folder,qus_save_str);
     save_results_str = qus_save_str;
@@ -563,8 +577,8 @@ for f_idx=1:length(qus_frames)
     'adaptive_bw_thresh','-v7.3');
     
         %save_fig_str = sprintf('%s\\all_param_maps_corrected',save_folder);
-        save_fig_str = 'all_param_maps_corrected'
-        saveas(gcf,save_fig_str,'fig');
+        % save_fig_str = 'all_param_maps_corrected'
+        % saveas(gcf,save_fig_str,'fig');
 
     
         cd(top_dir);

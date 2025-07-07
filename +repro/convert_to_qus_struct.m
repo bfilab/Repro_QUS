@@ -52,7 +52,7 @@ samp.fs = in_data.fs*1e6; % fs in the RF data struct is in [MHz], needs to be in
 % struct. Otherwise, return as empty member
 
 if isfield(in_data,'seg_struct')
-    samp_surf_seg = in_data.seg_struct.surf_roi.Position;
+    samp_surf_seg = in_data.seg_struct.p_roi.Position;
     samp_surf = min(samp_surf_seg(:,2)); % least distance from transducer to sample surface
     samp.surf_pos = samp_surf/1000; % in [m]
 else

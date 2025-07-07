@@ -1,4 +1,4 @@
-function res_table = get_qus_results(rf_fid,qus_fid,qus_frame,id_str)
+function res_table = get_qus_results(rf_fid,qus_fid,qus_frame,id_str,organ)
 % Create a Table with the ROI-wise QUS results. Only include ROIs that
 % are contained within the repro segmentation region
 %
@@ -26,6 +26,7 @@ arguments
     qus_fid string
     qus_frame (1,1) 
     id_str string
+    organ string
 end
 
 clc; close all;
@@ -173,5 +174,6 @@ end
 
 
 res_table.ID(:,1) = id_str;
+res_table.Organ(:,1) = organ;
 
 

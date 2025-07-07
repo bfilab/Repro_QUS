@@ -1,4 +1,4 @@
-function compile_qus_results(qus_fid,fid_cell_array,id_cell_array,qus_frame)
+function compile_qus_results(qus_fid,fid_cell_array,id_cell_array,qus_frame,organ)
 % Compile all the QUS results into a single table and write to a .csv file
 
 %%
@@ -30,7 +30,7 @@ fid_cell_array = {'F:\OneDrive - med.cornell.edu\Documents\Photoacoustic_repro\P
 % working directory
 %date_str = datestr(datetime,'yyyy-mm-dd');
 date_str = char(datetime(datetime,'Format','yyyy-MM-dd'));
-csv_save_fid = [date_str,'.csv'];
+csv_save_fid = [date_str,'_',organ,'.csv'];
 % csv_save_fid = '2023-07-25.csv';
 
 % Loop over all the datasets and combine the QUS results into a single
@@ -48,7 +48,7 @@ for f_idx=1:length(fid_cell_array)
     %     disp(fid_cell_array{f_idx});
     %     break;
     % end
-    this_res_table = repro.get_qus_results(fid_cell_array{f_idx},qus_fid,qus_frame,id_cell_array{f_idx});
+    this_res_table = repro.get_qus_results(fid_cell_array{f_idx},qus_fid,qus_frame,id_cell_array{f_idx},organ);
     full_res_table = [full_res_table; this_res_table];
 end
 
