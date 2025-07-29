@@ -22,6 +22,6 @@ for ll=1:size(roi_pts,1)-1
   y2 = roi_pts(ll+1,2);
 
   hold(in_fig,'on');
-  plot(in_fig,[x1, x2], [y1, y2],'r','LineWidth',3);
+  plot(in_fig,[x1, x2], [y1, y2],'w','LineWidth',3);
 end
     

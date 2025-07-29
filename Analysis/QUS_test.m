@@ -2,17 +2,17 @@
 %6/4/2024
 %Updated 7/3/2025
 ProcessIQ = false;
-Segment = true;
+Segment = false;
 ProcessQUS = false; 
-OverlayQUS = false;
+OverlayQUS = true;
 Compile = false;
 
 addpath(genpath('D:\Andrew\Repro_QUS\'));
 data_dir = 'D:\Andrew\Prolapse Model';
 cd(data_dir);
-directories = {dir('M879*')};
-date_str = char(datetime(datetime,"Format","uuuu-MM-dd"));
-%date_str = '2025-07-04';
+directories = {dir('M955*'),dir('M949*')};
+%date_str = char(datetime(datetime,"Format","uuuu-MM-dd"));
+date_str = '2025-07-07';
 anatomy = readtable('anatomy_qus.csv');
 
 for d = 1:length(directories)

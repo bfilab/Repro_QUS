@@ -10,7 +10,7 @@ for d = 1:length(directories)
     for i = 1:length(samples)
         this_id = samples(i).name; %Find animal ID
         cd(this_id); %Go to folder and save current directory
-        csv_files = dir('2025-07-07*.csv'); %Find csv files with QUS data
+        csv_files = dir('2025-07-08*.csv'); %Find csv files with QUS data
 
         for f = 1:length(csv_files)
             this_table = readtable(csv_files(f).name); %Extract table
@@ -22,5 +22,5 @@ for d = 1:length(directories)
 end
 
 save_str = strcat(char(datetime(datetime,'Format','yyyy-MM-dd')),...
-    '-all-frames.csv');
+    '-first-frame.csv');
 writetable(new_table,save_str); %Save compiled table

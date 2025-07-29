@@ -35,8 +35,8 @@ mkdir(copy_dir);
 % in_fid = 'RTG_4_808_2020-05-28-10-49-53_RF_Data.mat';
 %day = 18
 
-%in_fid = dir('*RF.mat');
-in_fid = dir('LZ550_18umPhantom_6mmSurf_7mmTx_RF_Data*');
+in_fid = dir('*RF.mat');
+%in_fid = dir('LZ550_18umPhantom_6mmSurf_7mmTx_RF_Data*');
 in_fid = in_fid(1).name;
 
 %qus_results_fid = '.\qus_results_2023-03-22.mat';
@@ -62,9 +62,9 @@ qus_params_to_plot = qus_params;
 % qus_clims = {[45,70],[90, 107],[10,40],[0 3]};
 % qus_str = {'ESD','Int','HK-alpha'};
 % qus_str = {'ESD','EAC','Int','HK-alpha'};
-qus_str = {'HK-alpha','log10(HK-k)','Naka-m','log10(Naka-Omega)','SS','I0','MBF','ESD','EAC'};
+qus_str = {'HK-alpha','HK-k','Naka-m','Naka-Omega','SS','I0','MBF','ESD','EAC'};
 %qus_clims = {[0, 1],[0, 5],[0, 1.2],[5, 8],[0, 1.5],[0, 20],[12, 30],[12, 30],[115, 140]};
-qus_clims = {[0, 0.1],[0, 2],[0.6, 1.1],[5, 7],[0, 1],[0, 25],[8, 18],[15, 20],[100, 140]};
+qus_clims = {[0, 0.3],[0, 3],[0.5, 1.0],[5, 7],[0, 1],[0, 25],[8, 18],[15, 20],[100, 140]};
 
 % Red/Green colormap
 qus_cmap = {[1 0 0; 0 1 0], [1 0 0; 0 1 0]};
@@ -245,12 +245,12 @@ for p_count=1:length(qus_params_to_plot)
     
     if strcmp(qus_params_to_plot{p_count},'Effective Scatterer Size')
         this_p_map = this_p_map * 1e6;
-    elseif strcmp(qus_params_to_plot{p_count},'Nak Scale Factor')
-        this_p_map = log10(this_p_map);
-    elseif strcmp(qus_params_to_plot{p_count},'HK Scatterer Clustering Param')
-        this_p_map = log10(this_p_map);
-    elseif strcmp(qus_params_to_plot{p_count},'Burr_b')
-        this_p_map = log10(this_p_map);
+    % elseif strcmp(qus_params_to_plot{p_count},'Nak Scale Factor')
+    %     this_p_map = log10(this_p_map);
+    % elseif strcmp(qus_params_to_plot{p_count},'HK Scatterer Clustering Param')
+    %     this_p_map = log10(this_p_map);
+    % elseif strcmp(qus_params_to_plot{p_count},'Burr_b')
+    %     this_p_map = log10(this_p_map);
     end
     
     figure(5+p_count);
