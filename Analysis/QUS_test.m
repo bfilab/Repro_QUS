@@ -10,7 +10,7 @@ Compile = false;
 addpath(genpath('D:\Andrew\Repro_QUS\'));
 data_dir = 'D:\Andrew\Prolapse Model';
 cd(data_dir);
-directories = {dir('M955*'),dir('M949*')};
+directories = {dir('M955*')};
 %date_str = char(datetime(datetime,"Format","uuuu-MM-dd"));
 date_str = '2025-07-07';
 anatomy = readtable('anatomy_qus.csv');
@@ -23,7 +23,7 @@ for d = 1:length(directories)
         cd(fid);
         anatomy_table = anatomy(anatomy.ID == str2num(fid(2:end)),:);
         anatomy_array = table2array(anatomy_table(1,3:6));
-    
+        
         %Convert IQ data file into .mat file with RF data
         if ProcessIQ
             mat_file = repro.iq2rf(fid);
@@ -46,12 +46,15 @@ for d = 1:length(directories)
             switch j
                 case 1
                     organ = 'vagina';
+                    continue;
                 case 2
                     organ = 'external';
                 case 3
                     organ = 'internal';
+                    continue;
                 case 4
                     organ = 'uterus';
+                    continue;
             end
             qus_file = strcat(date_str,'_',organ,'_',num2str(frame));
 
