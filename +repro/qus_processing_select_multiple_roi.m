@@ -499,7 +499,7 @@ while true
 
 %                 % Plot the histogram with the pdf fits
                     hist_fig = figure(900+10); clf;
-                    env_hist = histogram(samp.env_sub_vol(:),'NumBins',70,'Normalization','probability');
+                    env_hist = histogram(samp.env_sub_vol(:),'NumBins',70,'Normalization','probability','r');
                     [hk_x,hk_y] = plotHomodynedK(hk_scat_clust_param,s,omega,env_hist);
                     [nak_x,nak_y] = plotNakagami(nak_fit,env_hist);
                     hold on
